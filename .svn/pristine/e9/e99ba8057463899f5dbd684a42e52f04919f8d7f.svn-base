@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+		<ui:insert name="customCSS" />
+</h:head>
+<h:body>
+	<p:layout fullPage="true">
+		<p:growl id="growl" autoUpdate="true"  />
+		<p:layoutUnit position="north" resizable="true" closable="false" collapsible="true">
+			<h:form>
+				<p:menubar>
+					<p:menuitem  value="Home" action="index.xhtml?faces-redirect=true" />
+					<p:menuitem  value="Aluno" action="aluno.xhtml?faces-redirect=true" />
+					<p:menuitem  value="Curso" action="curso.xhtml?faces-redirect=true" />
+					<p:menuitem  value="Formulário" action="formulario.xhtml?faces-redirect=true" />
+					<p:menuitem  value="Formulário de Avaliação" action="avaliacao.xhtml?faces-redirect=true" />
+					<p:menuitem  value="Pergunta" action="pergunta.xhtml?faces-redirect=true" />
+					<p:menuitem  value="Tópico" action="topico.xhtml?faces-redirect=true" />
+					<p:menuitem  value="Turma" action="turma.xhtml?faces-redirect=true" />
+					<p:menuitem  value="Sair" actionListener="#{logoutBean.logout}" icon="ui-icon-close" />
+				</p:menubar>
+			</h:form>
+		</p:layoutUnit>
+
+		<p:layoutUnit position="center">
+			
+			<ui:insert name="centerContent" />
+			
+		</p:layoutUnit>
+	</p:layout>
+</h:body>
+</html>

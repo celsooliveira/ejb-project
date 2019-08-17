@@ -1,0 +1,179 @@
+package br.com.decision.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+
+/**
+ * Classe para mapeamento da tabela "turma"
+ * @author André Schmitt
+ */
+@Entity
+@Table(name = "turma")
+public class Turma extends BaseAuditableEntity implements Serializable {
+
+	private static final long serialVersionUID = 2802571937338367675L;
+	private Integer id;
+	private Date dtInicial;
+	private Date dtFinal;
+	private Date dtInicioAvaliacao;
+	private Date dtFinalAvaliacao;
+	private int numero;
+	private String textoEmail;
+	private List<Usuario> alunos;
+	private Formulario formulario;
+	private Modulo modulo;
+	private Usuario professor;
+	private List<AlunoAvaliacaoTurma> alunoAvaliacaoTurmas;
+
+	public Turma() {
+		super();
+	}
+
+	@Override
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_turma", unique = true)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(final Integer id) {
+		this.id = id;
+	}
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "dt_inicial")
+	public Date getDtInicial() {
+		return this.dtInicial;
+	}
+
+	public void setDtInicial(final Date dtInicial) {
+		this.dtInicial = dtInicial;
+	}
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "dt_final")
+	public Date getDtFinal() {
+		return this.dtFinal;
+	}
+
+	public void setDtFinal(final Date dtFinal) {
+		this.dtFinal = dtFinal;
+	}
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "dt_inicio_avaliacao")
+	public Date getDtInicioAvaliacao() {
+		return this.dtInicioAvaliacao;
+	}
+
+	public void setDtInicioAvaliacao(final Date dtInicioAvaliacao) {
+		this.dtInicioAvaliacao = dtInicioAvaliacao;
+	}
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "dt_final_avaliacao")
+	public Date getDtFinalAvaliacao() {
+		return this.dtFinalAvaliacao;
+	}
+
+	public void setDtFinalAvaliacao(final Date dtFinalAvaliacao) {
+		this.dtFinalAvaliacao = dtFinalAvaliacao;
+	}
+
+	@Column(name = "numero")
+	public int getNumero() {
+		return this.numero;
+	}
+
+	public void setNumero(final int numero) {
+		this.numero = numero;
+	}
+
+	@Column(name = "texto_email", length = 255)
+	public String getTextoEmail() {
+		return this.textoEmail;
+	}
+
+	public void setTextoEmail(final String textoEmail) {
+		this.textoEmail = textoEmail;
+	}
+
+	@ManyToMany(cascade = CascadeType.MERGE)
+	@JoinTable(name = "aluno_turma",
+	       	      joinColumns = { @JoinColumn(name = "id_turma") },
+	       inverseJoinColumns = { @JoinColumn(name = "id_usuario") })
+	public List<Usuario> getAlunos() {
+		return this.alunos;
+	}
+
+	public void setAlunos(final List<Usuario> alunos) {
+		this.alunos = alunos;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@JoinColumn(name = "id_formulario")
+	public Formulario getFormulario() {
+		return this.formulario;
+	}
+
+	public void setFormulario(final Formulario formulario) {
+		this.formulario = formulario;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@JoinColumn(name = "modulo_id_modulo")
+	public Modulo getModulo() {
+		return this.modulo;
+	}
+
+	public void setModulo(final Modulo modulo) {
+		this.modulo = modulo;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@JoinColumn(name = "id_professor")
+	public Usuario getProfessor() {
+		return this.professor;
+	}
+
+	public void setProfessor(final Usuario professor) {
+		this.professor = professor;
+	}
+
+	@OneToMany(mappedBy="turma")
+	public List<AlunoAvaliacaoTurma> getAlunoAvaliacaoTurmas() {
+		return alunoAvaliacaoTurmas;
+	}
+
+	public void setAlunoAvaliacaoTurmas(final List<AlunoAvaliacaoTurma> alunoAvaliacaoTurmas) {
+		this.alunoAvaliacaoTurmas = alunoAvaliacaoTurmas;
+	}
+
+	@Override
+	public String toString() {
+		return "Turma [id=" + id + ", dtInicial=" + dtInicial + ", dtFinal="
+				+ dtFinal + ", dtInicioAvaliacao=" + dtInicioAvaliacao
+				+ ", dtFinalAvaliacao=" + dtFinalAvaliacao + ", numero="
+				+ numero + ", textoEmail=" + textoEmail + "]";
+	}
+
+}

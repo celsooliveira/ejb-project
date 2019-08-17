@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/pages/template/crud-template.xhtml">
+
+	<ui:param name="backingBean" value="#{formularioAvaliacaoBean}" />
+
+	<ui:define name="content">
+		<p:panel id="formularioPanel" header="Gerenciamento de Formulários de Avaliações"
+			menuTitle="Gerenciamento de Formulários">
+			
+			<p:dataTable id="formularioTable" var="formulario" value="#{backingBean.formulariosAvaliacao}" selectionMode="single"
+				emptyMessage="Sem registros"  
+				selection="#{backingBean.entity}" rowKey="#{formulario.id}">
+				<f:facet name="header">Lista de Formulários de Avaliações</f:facet>
+				
+				<p:ajax event="rowSelect" listener="#{formularioAvaliacaoBean.onRowSelect}" update=":baseForm:baseMenuBar" />
+				
+				<p:column id="formularioId" headerText="Id" width="5%" style="text-align:center;">
+					<h:outputText value="#{formulario.id}" />
+				</p:column>
+				<p:column id="descricaoFormulário" headerText="Nome">
+					<h:outputText value="#{formulario.formulario.descricao}" />
+				</p:column>
+				<p:column id="descricaoTopico" headerText="Tópico">
+					<h:outputText value="#{formulario.topico.descricao}" />
+				</p:column>
+				<p:column id="descricaoPergunta" headerText="Pergunta">
+					<h:outputText value="#{formulario.pergunta.dsPergunta}" />
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+	</ui:define>
+	
+	<ui:define name="modalContent">
+		<h:panelGrid columns="1">
+			<p:outputLabel id="labelFormulario" for="editFieldFormulario" value="Formulário: " />
+	        <p:selectOneMenu id="editFieldFormulario" style="width:300px;" required="true" converter="entityConverter" value="#{backingBean.entity.formulario}">
+	            <f:selectItems value="#{backingBean.formularios}" var="formulario"
+	            	itemLabel="#{formulario.id} - #{formulario.descricao}" 
+	            	itemValue="#{formulario}"/>
+	        </p:selectOneMenu>
+	        
+			<p:outputLabel id="labelTopico" for="editFieldTopico" value="Tópico: " />
+	        <p:selectOneMenu id="editFieldTopico" style="width:300px;" required="true" converter="entityConverter" value="#{backingBean.entity.topico}">
+	            <f:selectItems value="#{backingBean.topicos}" var="topico"
+	            	itemLabel="#{topico.id} - #{topico.descricao}" 
+	            	itemValue="#{topico}"/>
+	        </p:selectOneMenu>
+	        
+			<p:outputLabel id="labelPergunta" for="editFieldPergunta" value="Pergunta: " />
+	        <p:selectOneMenu id="editFieldPergunta" style="width:300px;" required="true" converter="entityConverter" value="#{backingBean.entity.pergunta}">
+	            <f:selectItems value="#{backingBean.perguntas}" var="pergunta"
+	            	itemLabel="#{pergunta.id} - #{pergunta.dsPergunta}" 
+	            	itemValue="#{pergunta}"/>
+	        </p:selectOneMenu>
+
+		</h:panelGrid>
+	</ui:define>
+	
+</ui:composition>
+</html>
+
+

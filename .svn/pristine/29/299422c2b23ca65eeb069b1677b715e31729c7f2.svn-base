@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/pages/template/crud-template.xhtml">
+
+	<ui:param name="backingBean" value="#{cursoBean}" />
+
+	<ui:define name="content">
+		<p:panel id="cursoPanel" header="Gerenciamento de Cursos"
+			menuTitle="Gerenciamento de Cursos">
+			<p:dataTable id="cursoTable" var="curso" value="#{backingBean.cursos}" selectionMode="single"
+				rows="10" paginator="true" rowsPerPageTemplate="5,10,15"
+				emptyMessage="Sem registros"  
+				selection="#{backingBean.entity}" rowKey="#{curso.id}">
+				<f:facet name="header">Lista de Cursos</f:facet>
+				
+				<p:ajax event="rowSelect" listener="#{cursoBean.onRowSelect}" update="baseForm:baseMenuBar" />
+				
+				<p:column id="cursoId" headerText="Id" width="5%" style="text-align:center;">
+					<h:outputText value="#{curso.id}" />
+				</p:column>
+				<p:column id="descricaoCurso" headerText="Nome">
+					<h:outputText value="#{curso.nomeCurso}" />
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+	</ui:define>
+	
+	<ui:define name="modalContent">
+		<h:panelGrid columns="1">
+			<p:outputLabel id="labelCurso" for="editFieldCurso" value="Curso:" />
+			<h:inputText id="editFieldCurso" required="true" value="#{backingBean.entity.nomeCurso}"/>
+			
+			<p:outputLabel id="labelModulos" for="editFieldModulos" value="Módulos:" />
+			<p:pickList id="editFieldModulos" value="#{cursoBean.modulos}" var="modulo" effect="bounce"
+                itemValue="#{modulo}" itemLabel="#{modulo.nome}" responsive="true"
+                converter="pickListConverter" />
+		</h:panelGrid>
+	</ui:define>
+	
+</ui:composition>
+</html>
+
+

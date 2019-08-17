@@ -1,0 +1,73 @@
+package br.com.decision.dao;
+
+import java.util.List;
+
+import javax.inject.Named;
+import javax.persistence.TypedQuery;
+
+import br.com.decision.criteria.TurmaCriteria;
+import br.com.decision.entity.Turma;
+
+/**
+ * Classe de acesso a dados para a entidade Turma
+ * @author André Schmitt
+ */
+@Named
+public class TurmaDAO extends BaseDAO<Turma> {
+
+	private static final long serialVersionUID = 7994635529844442043L;
+
+	@Override
+	public String getSqlFullJoin() {
+		final StringBuilder sql = new StringBuilder();
+		sql.append(" SELECT DISTINCT turma FROM Turma turma ");
+		sql.append(" LEFT JOIN FETCH turma.curso curso ");
+		sql.append(" LEFT JOIN FETCH turma.alunos alunos ");
+		sql.append(" LEFT JOIN FETCH turma.formulario formulario ");
+		sql.append(" LEFT JOIN FETCH turma.modulo modulo ");
+		sql.append(" LEFT JOIN FETCH turma.professor professor ");
+		sql.append(" LEFT JOIN FETCH turma.alunoAvaliacaoTurmas alunoAvaliacaoTurmas");
+		return sql.toString();
+	}
+
+	public List<Turma> searchSourceByCriteria(final TurmaCriteria criteria) {
+		final StringBuilder sql = new StringBuilder();
+		sql.append("SELECT turma FROM Turma turma WHERE 1=1 ");
+		if (criteria.getIds() != null && !criteria.getIds().isEmpty()) {
+			sql.append("   AND turma.id NOT IN :turmasId ");
+		}
+		final TypedQuery<Turma> query = getEntityManager().createQuery(sql.toString(), Turma.class);
+		if (criteria.getIds() != null && !criteria.getIds().isEmpty()) {
+			query.setParameter("turmasId", criteria.getIds());
+		}
+		return query.getResultList();
+	}
+
+	public List<Turma> searchTargetByCriteria(final TurmaCriteria criteria) {
+		final StringBuilder sql = new StringBuilder();
+		sql.append("SELECT turma FROM Turma turma WHERE 1=1 ");
+		sql.append("   AND turma.id IN :turmasId ");
+		final TypedQuery<Turma> query = getEntityManager().createQuery(sql.toString(), Turma.class);
+		query.setParameter("turmasId", criteria.getIds());
+		return query.getResultList();
+	}
+
+	/**
+	 * Busca a lista das turmas que ainda não tiveram seus registros de avaliação gerados
+	 * @return List<Turma>
+	 */
+	public List<Turma> searchTurmasPendentes() {
+		final StringBuilder sql = new StringBuilder();
+		sql.append(" SELECT DISTINCT turma FROM Turma turma ");
+		sql.append("   JOIN FETCH turma.alunos alunos ");
+		sql.append("   JOIN FETCH turma.formulario formulario ");
+		sql.append("   JOIN FETCH formulario.formularioItems formularioItems");
+		sql.append("   JOIN FETCH formularioItems.pergunta perguntas WHERE 1=1 ");
+		sql.append("    AND turma.id NOT IN (SELECT DISTINCT alunoAvaliacaoTurma.turma.id FROM  AlunoAvaliacaoTurma alunoAvaliacaoTurma) ");
+
+		final TypedQuery<Turma> query = getEntityManager().createQuery(sql.toString(), Turma.class);
+		return query.getResultList();
+	}
+
+}
+

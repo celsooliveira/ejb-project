@@ -1,0 +1,82 @@
+package br.com.decision.entity;
+
+import java.io.Serializable;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+/**
+ * Classe para mapeamento da tabela "avaliacao_resposta"
+ */
+@Entity
+@Table(name = "avaliacao_resposta")
+public class AvaliacaoResposta extends BaseAuditableEntity implements Serializable {
+
+	private static final long serialVersionUID = 8688858394469026495L;
+	private Integer id;
+	private AlunoAvaliacaoTurma alunoAvaliacaoTurma;
+	private Pergunta pergunta;
+	private Resposta resposta;
+
+	public AvaliacaoResposta() {
+		super();
+	}
+
+	@Override
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_avaliacao_resposta", unique = true)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(final Integer id) {
+		this.id = id;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_aluno_avalia_modulo")
+	public AlunoAvaliacaoTurma getAlunoAvaliacaoTurma() {
+		return this.alunoAvaliacaoTurma;
+	}
+
+	public void setAlunoAvaliacaoTurma(final AlunoAvaliacaoTurma alunoAvaliacaoTurma) {
+		this.alunoAvaliacaoTurma = alunoAvaliacaoTurma;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_pergunta")
+	public Pergunta getPergunta() {
+		return this.pergunta;
+	}
+
+	public void setPergunta(final Pergunta pergunta) {
+		this.pergunta = pergunta;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "id_resposta")
+	public Resposta getResposta() {
+		return this.resposta;
+	}
+
+	public void setResposta(final Resposta resposta) {
+		this.resposta = resposta;
+	}
+
+	@Override
+	public String toString() {
+		return "AvaliacaoResposta [id=" + id
+				+ ", alunoAvaliacaoTurma=" + alunoAvaliacaoTurma
+				+ ", pergunta=" + pergunta + ", resposta=" + resposta + "]";
+	}
+
+}

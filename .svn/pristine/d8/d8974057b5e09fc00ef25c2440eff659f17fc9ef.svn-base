@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/pages/template/crud-template.xhtml">
+
+	<ui:param name="backingBean" value="#{formularioBean}" />
+
+	<ui:define name="content">
+		<p:panel id="formularioPanel" header="Gerenciamento de Formulários"
+			menuTitle="Gerenciamento de Formulários">
+			<p:dataTable id="formularioTable" var="formulario" value="#{backingBean.formularios}" selectionMode="single"
+				rows="10" paginator="true" rowsPerPageTemplate="5,10,15" 
+				emptyMessage="Sem registros" 
+				selection="#{backingBean.entity}" rowKey="#{formulario.id}">
+				<f:facet name="header">Lista de Formulários</f:facet>
+				
+				<p:ajax event="rowSelect" listener="#{formularioBean.onRowSelect}" update=":baseForm:baseMenuBar" />
+				
+				<p:column id="formularioId" headerText="Id" width="5%" style="text-align:center;">
+					<h:outputText value="#{formulario.id}" />
+				</p:column>
+				<p:column id="descricaoFormulário" headerText="Nome">
+					<h:outputText value="#{formulario.descricao}" />
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+	</ui:define>
+	
+	<ui:define name="modalContent">
+		<h:panelGrid columns="1">
+			<p:outputLabel id="labelFormulario" for="editFieldFormulario" value="Descrição:" />
+			<h:inputText id="editFieldFormulario" required="true" value="#{backingBean.entity.descricao}"/>
+
+			<p:outputLabel id="labelTurmas" for="editFieldTurmas" value="Turmas:" />
+			<p:pickList id="editFieldTurmas" value="#{backingBean.turmas}" var="turma" effect="bounce"
+                itemValue="#{turma}" itemLabel="#{turma.numero}" responsive="true"
+                converter="pickListConverter" />
+
+		</h:panelGrid>
+	</ui:define>
+	
+</ui:composition>
+</html>
+
+

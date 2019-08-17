@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+</h:head>
+<h:body>
+	<p:growl id="growl" autoUpdate="true" />
+
+	<ui:param name="backingBean" value="#{respostaAvaliacaoBean}" />
+	<ui:param name="avaliacao" value="#{backingBean.avaliacao}" />
+	<ui:param name="mapAvaliacao" value="#{backingBean.mapAvaliacoes}" />
+	<ui:param name="topicos" value="#{mapAvaliacao.keySet()}" />
+	
+	
+	<h:form>
+		<p:fieldset legend="Avaliação">
+			<p:fieldset>
+				<h:panelGrid columns="1">
+					<p:outputLabel id="labelAluno" for="textFieldAluno" value="Aluno:" />
+					<h:outputText id="textFieldAluno" value="#{avaliacao.aluno.nome} #{avaliacao.aluno.sobrenome}" />
+			
+					<p:outputLabel id="labelTurma" for="textFieldTurma" value="Turma:" />
+					<h:outputText id="textFieldTurma" value="#{avaliacao.turma.numero}" />
+				</h:panelGrid>
+			</p:fieldset>
+			
+			<p:fieldset>
+				<h:panelGrid columns="1" width="100%">
+					<p:dataGrid var="topico" value="#{topicos}" columns="1">
+						<p:outputLabel value="#{topico.descricao}" />
+						<p:dataGrid var="avaliacaoResposta" value="#{mapAvaliacao.get(topico)}" columns="2">
+							<p:outputLabel style="width:70%;" value="#{avaliacaoResposta.pergunta.dsPergunta}" />
+							<p:rating value="#{avaliacaoResposta.resposta.resposta}" />
+						</p:dataGrid>	
+					</p:dataGrid>			
+				</h:panelGrid>
+			</p:fieldset>
+		</p:fieldset>
+	</h:form>
+</h:body>
+</html>

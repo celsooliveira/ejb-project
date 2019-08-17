@@ -1,0 +1,114 @@
+package br.com.decision.view;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Produces;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import br.com.decision.entity.AlunoAvaliacaoTurma;
+import br.com.decision.entity.AvaliacaoResposta;
+import br.com.decision.entity.FormularioItem;
+import br.com.decision.entity.Pergunta;
+import br.com.decision.entity.Topico;
+import br.com.decision.service.AlunoAvaliacaoTurmaService;
+import br.com.decision.utils.AvaliacaoHashUtils;
+import br.com.decision.xml.AvaliacaoHash;
+
+@Named
+@SessionScoped
+public class RespostaAvaliacaoBean extends CrudBaseBean<AlunoAvaliacaoTurma, AlunoAvaliacaoTurmaService> {
+
+	private static final long serialVersionUID = 5660252985908274741L;
+
+	@Inject
+	private AlunoAvaliacaoTurmaService alunoAvaliacaoTurmaService;
+
+	private Map<Topico, List<AvaliacaoResposta>> mapAvaliacoes;
+
+	@Produces
+	public AlunoAvaliacaoTurma getAvaliacao() {
+		final AlunoAvaliacaoTurma alunoAvaliacaoTurma = searchAlunoAvaliacaoTurma();
+		buildAvaliacoes(alunoAvaliacaoTurma);
+		return alunoAvaliacaoTurma;
+	}
+
+	public Map<Topico, List<AvaliacaoResposta>> getMapAvaliacoes() {
+		return mapAvaliacoes;
+	}
+
+	public void setMapAvaliacoes(final Map<Topico, List<AvaliacaoResposta>> mapAvaliacoes) {
+		this.mapAvaliacoes = mapAvaliacoes;
+	}
+
+	private Map<Topico, List<AvaliacaoResposta>> buildAvaliacoes(final AlunoAvaliacaoTurma alunoAvaliacaoTurma) {
+		mapAvaliacoes = new HashMap<Topico, List<AvaliacaoResposta>>();
+
+		for (final AvaliacaoResposta avaliacaoResposta : buildAvaliacaoRespostas(alunoAvaliacaoTurma)) {
+			final Topico topico = buildTopicoFromAvaliacaoResposta(avaliacaoResposta);
+
+			if (!mapAvaliacoes.containsKey(topico)) {
+				mapAvaliacoes.put(topico, new ArrayList<AvaliacaoResposta>());
+			}
+			mapAvaliacoes.get(topico).add(avaliacaoResposta);
+		}
+		return mapAvaliacoes;
+	}
+
+	private Topico buildTopicoFromAvaliacaoResposta(final AvaliacaoResposta avaliacaoResposta) {
+		final Pergunta pergunta = avaliacaoResposta.getPergunta();
+		final List<FormularioItem> formulariosItens = pergunta.getFormularioItems();
+
+		if (formulariosItens.size() > 1) {
+			System.out.println("DEVERIA TER APENAS UM TOPICO");
+		}
+
+		for (final FormularioItem formularioItem : formulariosItens) {
+			return formularioItem.getTopico();
+		}
+		return null;
+	}
+
+	private List<AvaliacaoResposta> buildAvaliacaoRespostas(final AlunoAvaliacaoTurma alunoAvaliacaoTurma) {
+		if (alunoAvaliacaoTurma != null && alunoAvaliacaoTurma.getAvaliacaoRespostas() != null) {
+			return alunoAvaliacaoTurma.getAvaliacaoRespostas();
+		}
+		return Collections.emptyList();
+	}
+
+	private AlunoAvaliacaoTurma searchAlunoAvaliacaoTurma() {
+		try {
+			final AvaliacaoHash avaliacaoHash = AvaliacaoHashUtils.buildAvaliacaoHashFromURLParameter(getHash());
+			return getService().searchAlunoAvaliacaoTurma(avaliacaoHash.getAlunoId(), avaliacaoHash.getTurmaId());
+		} catch(final Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private String getHash() {
+		return FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("value");
+	}
+
+	@Override
+	public AlunoAvaliacaoTurmaService getService() {
+		return alunoAvaliacaoTurmaService;
+	}
+
+	@Override
+	public String getModalTittle() {
+		return null;
+	}
+
+	@Override
+	public AlunoAvaliacaoTurma buildNewInstance() {
+		return null;
+	}
+
+}

@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/pages/template/template.xhtml">
+	
+	<ui:define name="centerContent">
+		<h:form id="baseForm">
+			<p:menubar id="baseMenuBar">
+				<p:menuitem id="menuItemAdicionar" value="Adicionar" process="@this" actionListener="#{backingBean.insert()}"
+					update=":baseFormModal" 
+					onsuccess="PF('dlg').show();" />
+				<p:menuitem id="menuItemEditar" value="Editar" process="@this" actionListener="#{backingBean.edit()}" disabled="#{not backingBean.isSelectedEntity()}" 
+					update=":baseFormModal"
+					oncomplete="PF('dlg').show();"/>
+				<p:menuitem  value="Excluir" disabled="#{not backingBean.isSelectedEntity()}"
+					update="@form" 
+					actionListener="#{backingBean.remove()}" />
+			</p:menubar>
+
+			<p:sticky target="baseMenuBar" />
+
+			<p:fieldset id="fieldSetContent">
+				<ui:insert name="content" />
+			</p:fieldset>
+		</h:form>
+					
+		<p:dialog id="modalCrud" widgetVar="dlg" header="#{backingBean.getModalTittle()}" resizable="false" showEffect="clip" hideEffect="clip" modal="true"
+		 	appendTo="@(body)" >
+			<h:form id="baseFormModal">
+				<p:messages id="message" autoUpdate="true" />
+				<p:fieldset id="fieldSetModal">
+					<p:commandButton id="btnSalvar" process="@form"
+						value="Salvar"
+						update="message :baseForm" 
+						actionListener="#{backingBean.save()}"
+                           oncomplete="handleLoginRequest(xhr, status, args)" />
+					<p:commandButton id="btnCancelar" value="Cancelar"
+					 	process="@this"
+					 	update="message :baseForm"
+					 	actionListener="#{backingBean.clearInstance()}"
+						oncomplete="handleLoginRequest(xhr, status, args)" />
+			    	</p:fieldset>   	
+				<p:fieldset id="modalContent">
+					<p:outputPanel rendered="#{!empty backingBean.entity}">
+			    			<ui:insert name="modalContent" />
+			    		</p:outputPanel>
+			    	</p:fieldset>
+			</h:form>
+		</p:dialog>  
+				
+		<script type="text/javascript">
+		    function handleLoginRequest(xhr, status, args) {
+		        if(args.validationFailed) {
+		            PF('dlg').jq.effect("shake", {times:5}, 100);
+		        }
+		        else {
+		            PF('dlg').hide();
+		        }	
+		    }
+		</script>
+	
+	</ui:define>
+	
+</ui:composition>
+</html>

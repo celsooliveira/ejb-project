@@ -1,0 +1,35 @@
+package br.com.decision.dao;
+
+import javax.inject.Named;
+import javax.persistence.TypedQuery;
+
+import br.com.decision.entity.ParametroSistema;
+
+
+/**
+ * Classe de acesso a dados para a entidade Parametro
+ */
+@Named
+public class ParametroSistemaDAO extends BaseDAO<ParametroSistema> {
+
+	private static final long serialVersionUID = -8845009615492591104L;
+
+	@Override
+	public String getSqlFullJoin() {
+		final StringBuilder sql = new StringBuilder();
+		sql.append(" SELECT parametroSistema FROM ParametroSistema parametroSistema ");
+		return sql.toString();
+	}
+
+	public ParametroSistema searchExportDir() {
+		final StringBuilder sql = new StringBuilder();
+		sql.append(" SELECT parametroSistema FROM ParametroSistema parametroSistema WHERE 1=1 ");
+		sql.append("    AND parametroSistema.nmParametro = :nmParametro ");
+
+		final TypedQuery<ParametroSistema> query = getEntityManager().createQuery(sql.toString(), ParametroSistema.class);
+		query.setParameter("nmParametro", "EXPORT_DIR");
+		return query.getSingleResult();
+	}
+
+}
+

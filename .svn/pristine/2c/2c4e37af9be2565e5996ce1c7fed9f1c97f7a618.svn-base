@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/pages/template/crud-template.xhtml">
+
+	<ui:param name="backingBean" value="#{alunoBean}" />
+	
+	<ui:define name="content">
+		<p:panel id="alunoPanel" header="Gerenciamento de Alunos"
+			menuTitle="Gerenciamento de Alunos">
+			<p:dataTable id="alunoTable" var="aluno"
+				emptyMessage="Sem registros" 
+				value="#{alunoBean.alunos}" selectionMode="single"
+				selection="#{alunoBean.entity}" rowKey="#{aluno.id}">
+
+				<f:facet name="header">
+	        		Lista de Alunos
+				</f:facet>
+
+				<p:ajax event="rowSelect" listener="#{alunoBean.onRowSelect}"
+					update=":baseForm:baseMenuBar" />
+
+				<p:column id="alunoId" headerText="Id"  width="5%" style="text-align:center;">
+					<h:outputText value="#{aluno.id}" />
+				</p:column>
+				<p:column id="alunoNome" headerText="Nome">
+					<h:outputText value="#{aluno.nome}" />
+				</p:column>
+				<p:column id="alunoSobrenome" headerText="Sobrenome">
+					<h:outputText value="#{aluno.sobrenome}" />
+				</p:column>
+				<p:column id="alunoDtNascimento" headerText="Data Nascimento">
+					<h:outputText value="#{aluno.dtNascimento}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+				<p:column id="alunoEmail" headerText="E-mail">
+					<h:outputText value="#{aluno.email}" />
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+	</ui:define>
+
+	<ui:define name="modalContent">
+		<h:panelGrid columns="1">
+			<p:outputLabel id="labelNome" for="editFieldNome" value="Nome:" />
+			<h:inputText id="editFieldNome" required="true"
+				value="#{alunoBean.entity.nome}" />
+			<p:outputLabel id="labelSobrenome" for="editFieldSobrenome"
+				value="Sobrenome:" />
+			<h:inputText id="editFieldSobrenome" required="true"
+				value="#{alunoBean.entity.sobrenome}" />
+			<p:outputLabel id="labelDtNascimento" for="editFieldDtNascimento"
+				value="Data de Nascimento:" />
+			<p:calendar id="editFieldDtNascimento"
+				value="#{alunoBean.entity.dtNascimento}" />
+			<p:outputLabel id="labelEmail" for="editFieldEmail" value="E-mail:" />
+			<h:inputText id="editFieldEmail" required="true"
+				value="#{alunoBean.entity.email}" />
+		</h:panelGrid>
+	</ui:define>
+
+
+</ui:composition>
+</html>

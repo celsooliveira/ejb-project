@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Avaliacao.iml" filepath="$PROJECT_DIR$/Avaliacao.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ear/Avaliacao-ear.iml" filepath="$PROJECT_DIR$/ear/Avaliacao-ear.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ejb/Avaliacao-ejb.iml" filepath="$PROJECT_DIR$/ejb/Avaliacao-ejb.iml" />
+      <module fileurl="file://$PROJECT_DIR$/web/Avaliacao-web.iml" filepath="$PROJECT_DIR$/web/Avaliacao-web.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+
+Avaliação
+
+</h:head>
+<h:body>
+	<p:growl id="growl" autoUpdate="true" />
+
+	<ui:param name="backingBean" value="#{respostaAvaliacaoBean}" />
+	<h:form>
+		<p:outputLabel id="labelId" for="editFieldId" value="Id:" />
+		<h:outputText id="editFieldId" required="true"
+				value="#{backingBean.avaliacao}" />		
+
+	</h:form>
+</h:body>
+</html>

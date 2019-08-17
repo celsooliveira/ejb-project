@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/pages/template/crud-template.xhtml">
+
+	<ui:param name="backingBean" value="#{perguntaBean}" />
+
+	<ui:define name="content">
+		<p:panel id="perguntaPanel" header="Gerenciamento de Perguntas"
+			menuTitle="Gerenciamento de Perguntas">
+			<p:dataTable id="perguntaTable" var="pergunta" value="#{backingBean.perguntas}" selectionMode="single" 
+				emptyMessage="Sem registros" 
+				selection="#{backingBean.entity}" rowKey="#{pergunta.id}">
+				<f:facet name="header">Lista de Perguntas</f:facet>
+				
+				<p:ajax event="rowSelect" listener="#{perguntaBean.onRowSelect}" update=":baseForm:baseMenuBar" />
+				
+				<p:column id="perguntaId" headerText="Id"  width="5%" style="text-align:center;" >
+					<h:outputText value="#{pergunta.id}" />
+				</p:column>
+				<p:column id="descricaoPergunta" headerText="Pergunta">
+					<h:outputText value="#{pergunta.dsPergunta}" />
+				</p:column>
+				<p:column id="perguntaJustificativa" headerText="Justificativa" style="text-align:center;">
+					<h:graphicImage library="images" name="#{pergunta.justificativa}.png" />
+				</p:column>
+				<p:column id="perguntaObjetiva" headerText="Objetiva" style="text-align:center;">
+					<h:graphicImage library="images" name="#{pergunta.objetiva}.png" />
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+	</ui:define>
+	
+	<ui:define name="modalContent">
+		<h:panelGrid columns="1">
+			<p:outputLabel id="labelPergunta" for="editFieldPergunta" value="Pergunta:" />
+			<h:inputText id="editFieldPergunta" required="true" value="#{backingBean.entity.dsPergunta}"/>
+
+			<p:outputLabel id="labelJustificativa" for="editFieldJustificativa" value="Justificativa:" />
+			<p:selectBooleanCheckbox id="editFieldJustificativa" value="#{backingBean.entity.justificativa}"/>
+
+			<p:outputLabel id="labelObjetiva" for="editFieldObjetiva" value="Objetiva:" />
+			<p:selectBooleanCheckbox id="editFieldObjetiva" value="#{backingBean.entity.objetiva}"/>
+			
+		</h:panelGrid>
+	</ui:define>
+	
+</ui:composition>
+</html>
+
+

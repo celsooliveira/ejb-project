@@ -1,0 +1,173 @@
+package br.com.decision.service;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
+import br.com.decision.dao.AlunoAvaliacaoTurmaDAO;
+import br.com.decision.entity.AlunoAvaliacaoTurma;
+import br.com.decision.entity.AvaliacaoResposta;
+import br.com.decision.entity.FormularioItem;
+import br.com.decision.entity.Pergunta;
+import br.com.decision.entity.Resposta;
+import br.com.decision.entity.Turma;
+import br.com.decision.entity.Usuario;
+import br.com.decision.utils.XLSExportUtils;
+
+
+/**
+ * Classe de Servico para a entidade Curso
+ * @author André Schmitt
+ */
+@Stateless
+public class AlunoAvaliacaoTurmaService extends BaseService<AlunoAvaliacaoTurma> implements Serializable {
+
+	private static final long serialVersionUID = -4583628997169679192L;
+	private static final String newLine;
+
+	static {
+		newLine = System.getProperty("line.separator");
+	}
+
+	@Inject
+	private AlunoAvaliacaoTurmaDAO dao;
+
+	@Inject
+	private EmailService emailService;
+
+	/** {@inheritDoc} */
+	@Override
+	protected AlunoAvaliacaoTurmaDAO getDAO() {
+		return dao;
+	}
+
+	public void exportAvaliacoes(final List<AlunoAvaliacaoTurma> avaliacoes) {
+		try {
+			if (avaliacoes != null && !avaliacoes.isEmpty()) {
+				XLSExportUtils.exportToXLS(avaliacoes);
+				updateTransmissionFlag(avaliacoes);
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void updateTransmissionFlag(final List<AlunoAvaliacaoTurma> avaliacoes) {
+		for (final AlunoAvaliacaoTurma avaliacao : avaliacoes) {
+			avaliacao.setTransmitida(true);
+			persist(avaliacao);
+		}
+	}
+
+	public void processAlunoAvaliacaoTurma(final List<Turma> turmas) {
+		notifyAlunos(createAvaliacoesFromAlunoTurma(turmas));
+	}
+
+	private void notifyAlunos(final List<AlunoAvaliacaoTurma> avaliacoes) {
+		if (avaliacoes != null) {
+			for (final AlunoAvaliacaoTurma avaliacao : avaliacoes) {
+				emailService.sendMessage(avaliacao.getAluno().getEmail(), buildSubject(avaliacao), buildMessage(avaliacao));
+			}
+		}
+	}
+
+	private String buildMessage(final AlunoAvaliacaoTurma avaliacao) {
+		final StringBuilder message = new StringBuilder();
+		message.append("Prezado Aluno ").append(avaliacao.getAluno().getNome()).append(" ").append(avaliacao.getAluno().getSobrenome()).append(", ");
+		message.append(newLine).append(newLine);
+
+		message.append("Temos como compromisso buscar a melhoria continua dos cursos oferecidos pela Infnet, objetivando sempre a satisfação e a qualidade ");
+		message.append("no aprendizado de nossos alunos. ");
+		message.append(newLine).append(newLine);
+
+		message.append("A sua participação é primordial para que consigamos aperfeiçoar nossos trabalhos e atingir nossos objetivos. ");
+
+		message.append(newLine).append(newLine);
+		message.append("Solicito a gentileza de preencher até a data ").append(buildDate(avaliacao)).append(" Formulário de Avaliação Eletrônica de ");
+		message.append(avaliacao.getTurma().getModulo().getNome()).append(" clicando em: ");
+		message.append("http://localhost:8080/Avaliacao-web/respostaAvaliacao.xhtml?value=").append(avaliacao.getHashAvaliacao());
+		return message.toString();
+	}
+
+	private String buildDate(final AlunoAvaliacaoTurma avaliacao) {
+		return new SimpleDateFormat("dd/MM/yyyy").format(avaliacao.getTurma().getDtFinalAvaliacao());
+	}
+
+	private String buildSubject(final AlunoAvaliacaoTurma avaliacao) {
+		final StringBuilder subject = new StringBuilder();
+		subject.append("InfNet - Avaliação de Curso");
+		return subject.toString();
+	}
+
+	private List<AlunoAvaliacaoTurma> createAvaliacoesFromAlunoTurma(final List<Turma> turmas) {
+		final List<AlunoAvaliacaoTurma> avaliacoes = new ArrayList<AlunoAvaliacaoTurma>();
+		for (final Turma turma : turmas) {
+			for (final Usuario aluno : turma.getAlunos()) {
+				avaliacoes.add(persist(buildAlunoAvaliacaoTurma(turma, aluno)));
+			}
+		}
+		return avaliacoes;
+	}
+
+	private AlunoAvaliacaoTurma buildAlunoAvaliacaoTurma(final Turma turma, final Usuario aluno) {
+		final AlunoAvaliacaoTurma alunoAvaliacaoTurma = new AlunoAvaliacaoTurma();
+		alunoAvaliacaoTurma.setAluno(aluno);
+		alunoAvaliacaoTurma.setTurma(turma);
+		alunoAvaliacaoTurma.setAvaliacaoRespostas(buildAvaliacaoRespostasFromFormularioItems(alunoAvaliacaoTurma, buildFormularioItemsFromTurma(turma)));
+//		alunoAvaliacaoTurma.setDtAvaliacao(dtAvaliacao);
+		alunoAvaliacaoTurma.setTransmitida(false);
+		alunoAvaliacaoTurma.setConcluida(false);
+		return alunoAvaliacaoTurma;
+	}
+
+	private List<FormularioItem> buildFormularioItemsFromTurma(final Turma turma) {
+		if (turma.getFormulario() != null && turma.getFormulario().getFormularioItems() != null && !turma.getFormulario().getFormularioItems().isEmpty()) {
+			return turma.getFormulario().getFormularioItems();
+		}
+		return Collections.emptyList();
+	}
+
+	private List<AvaliacaoResposta> buildAvaliacaoRespostasFromFormularioItems(final AlunoAvaliacaoTurma alunoAvaliacaoTurma, final List<FormularioItem> formularioItems) {
+		final List<AvaliacaoResposta> respostas = new ArrayList<AvaliacaoResposta>();
+		for (final FormularioItem formularioItem : formularioItems) {
+			final AvaliacaoResposta avaliacaoResposta = new AvaliacaoResposta();
+			avaliacaoResposta.setAlunoAvaliacaoTurma(alunoAvaliacaoTurma);
+			avaliacaoResposta.setPergunta(formularioItem.getPergunta());
+			avaliacaoResposta.setResposta(buildResposta(formularioItem.getPergunta()));
+			respostas.add(avaliacaoResposta);
+		}
+		return respostas;
+	}
+
+	private Resposta buildResposta(final Pergunta pergunta) {
+		final Resposta resposta = new Resposta();
+		resposta.setTexto("");
+		resposta.setPergunta(pergunta);
+		return resposta;
+	}
+
+	/**
+	 * Busca determinada avaliação a partir do id da turma e do aluno
+	 * @param alunoId Id do Aluno
+	 * @param turmaId Id da Turma
+	 * @return
+	 */
+	public AlunoAvaliacaoTurma searchAlunoAvaliacaoTurma(final Integer alunoId, final Integer turmaId) {
+		return dao.searchAlunoAvaliacaoTurma(alunoId, turmaId);
+	}
+
+	/**
+	 * Busca lista de avaliações para exportação
+	 * @return List<AlunoAvaliacaoTurma>
+	 */
+	public List<AlunoAvaliacaoTurma> searchAlunoAvaliacaoTurmaToExport() {
+		return dao.searchAlunoAvaliacaoTurmaToExport();
+	}
+
+}

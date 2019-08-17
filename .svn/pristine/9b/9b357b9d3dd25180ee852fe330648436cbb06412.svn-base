@@ -1,0 +1,96 @@
+package br.com.decision.service;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
+import br.com.decision.dao.AlunoAvaliacaoTurmaDAO;
+import br.com.decision.entity.AlunoAvaliacaoTurma;
+import br.com.decision.entity.AvaliacaoResposta;
+import br.com.decision.entity.FormularioItem;
+import br.com.decision.entity.Pergunta;
+import br.com.decision.entity.Resposta;
+import br.com.decision.entity.Turma;
+import br.com.decision.entity.Usuario;
+
+
+/**
+ * Classe de Servico para a entidade Curso
+ * @author André Schmitt
+ */
+@Stateless
+public class AlunoAvaliacaoTurmaService extends BaseService<AlunoAvaliacaoTurma> implements Serializable {
+
+	private static final long serialVersionUID = -4583628997169679192L;
+
+	@Inject
+	private AlunoAvaliacaoTurmaDAO dao;
+
+	/** {@inheritDoc} */
+	@Override
+	protected AlunoAvaliacaoTurmaDAO getDAO() {
+		return dao;
+	}
+
+	public void createAvaliacoesFromAlunoTurma(final List<Turma> turmas) {
+		for (final Turma turma : turmas) {
+			for (final Usuario aluno : turma.getAlunos()) {
+				persist(buildAlunoAvaliacaoTurma(turma, aluno));
+			}
+		}
+	}
+
+	private AlunoAvaliacaoTurma buildAlunoAvaliacaoTurma(final Turma turma, final Usuario aluno) {
+		final AlunoAvaliacaoTurma alunoAvaliacaoTurma = new AlunoAvaliacaoTurma();
+		alunoAvaliacaoTurma.setAluno(aluno);
+		alunoAvaliacaoTurma.setTurma(turma);
+		alunoAvaliacaoTurma.setAvaliacaoRespostas(buildAvaliacaoRespostasFromFormularioItems(alunoAvaliacaoTurma, buildFormularioItemsFromTurma(turma)));
+//		alunoAvaliacaoTurma.setDtAvaliacao(dtAvaliacao);
+		alunoAvaliacaoTurma.setTransmitida(false);
+		alunoAvaliacaoTurma.setConcluida(false);
+		return alunoAvaliacaoTurma;
+	}
+
+	private List<FormularioItem> buildFormularioItemsFromTurma(final Turma turma) {
+		if (turma.getFormulario() != null && turma.getFormulario().getFormularioItems() != null && !turma.getFormulario().getFormularioItems().isEmpty()) {
+			return turma.getFormulario().getFormularioItems();
+		}
+		return Collections.emptyList();
+	}
+
+	private List<AvaliacaoResposta> buildAvaliacaoRespostasFromFormularioItems(final AlunoAvaliacaoTurma alunoAvaliacaoTurma, final List<FormularioItem> formularioItems) {
+		final List<AvaliacaoResposta> respostas = new ArrayList<AvaliacaoResposta>();
+		for (final FormularioItem formularioItem : formularioItems) {
+			final AvaliacaoResposta avaliacaoResposta = new AvaliacaoResposta();
+			avaliacaoResposta.setAlunoAvaliacaoTurma(alunoAvaliacaoTurma);
+			avaliacaoResposta.setPergunta(formularioItem.getPergunta());
+			avaliacaoResposta.setResposta(buildResposta(formularioItem.getPergunta()));
+			respostas.add(avaliacaoResposta);
+		}
+		return respostas;
+	}
+
+	private Resposta buildResposta(final Pergunta pergunta) {
+		final Resposta resposta = new Resposta();
+		resposta.setNota("");
+		resposta.setResposta(BigDecimal.ZERO);
+		resposta.setPergunta(pergunta);
+		return resposta;
+	}
+
+	/**
+	 * Busca determinada avaliação a partir do id da turma e do aluno
+	 * @param alunoId Id do Aluno
+	 * @param turmaId Id da Turma
+	 * @return
+	 */
+	public AlunoAvaliacaoTurma searchAlunoAvaliacaoTurma(final Integer alunoId, final Integer turmaId) {
+		return dao.searchAlunoAvaliacaoTurma(alunoId, turmaId);
+	}
+
+}

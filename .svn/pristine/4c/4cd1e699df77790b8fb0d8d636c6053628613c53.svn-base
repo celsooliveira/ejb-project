@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/pages/template/crud-template.xhtml">
+
+	<ui:param name="backingBean" value="#{turmaBean}" />
+
+	<ui:define name="content">
+		<p:panel id="turmaPanel" header="Gerenciamento de Turmas"
+			menuTitle="Gerenciamento de Turmas">
+			<p:dataTable id="turmaTable" var="turma" value="#{backingBean.turmas}" selectionMode="single"
+				rows="10" paginator="true" rowsPerPageTemplate="5,10,15"
+				emptyMessage="Sem registros" selection="#{backingBean.entity}" rowKey="#{turma.id}">
+				
+				<f:facet name="header">Lista de Turmas</f:facet>
+				
+				<p:ajax event="rowSelect" listener="#{turmaBean.onRowSelect}" update=":baseForm:baseMenuBar" />
+				
+				<p:column id="turmaId" headerText="Id" width="5%" style="text-align:center;" >
+					<h:outputText value="#{turma.id}" />
+				</p:column>
+				<p:column id="turmaDataInicial" headerText="Data Inicial" style="text-align:center;" >
+					<h:outputText value="#{turma.dtInicial}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+				<p:column id="turmaDataFinal" headerText="Data Final" style="text-align:center;" >
+					<h:outputText value="#{turma.dtFinal}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+				<p:column id="turmaDataInicioAvaliacao"	headerText="Data Inicial Avaliação" style="text-align:center;">
+					<h:outputText value="#{turma.dtInicioAvaliacao}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+				<p:column id="turmaDataFinalAvaliacao" headerText="Data Final Avaliação" style="text-align:center;" >
+					<h:outputText value="#{turma.dtFinalAvaliacao}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+				<p:column id="turmaNumero" headerText="Número" style="text-align:center;">
+					<h:outputText value="#{turma.numero}" />
+				</p:column>
+				<p:column id="turmaProfessor" headerText="Professor">
+					<h:outputText value="#{turma.professor.nome} #{turma.professor.sobrenome}" />
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+	</ui:define>
+	
+	<ui:define name="modalContent">
+		<p:scrollPanel mode="native" style="width:350px;height:300px">
+		<h:panelGrid columns="1">
+		
+			<p:outputLabel id="labelModulo" for="editFieldModulo" value="Módulo: " />
+	        <p:selectOneMenu id="editFieldModulo" style="width:300px;" required="true" converter="entityConverter" value="#{backingBean.entity.modulo}">
+	            <f:selectItems value="#{backingBean.modulos}" var="modulo"
+	            	itemLabel="#{modulo.id} - #{modulo.nome}" 
+	            	itemValue="#{modulo}"/>
+	        </p:selectOneMenu>
+	
+			<p:outputLabel id="labelFormulario" for="editFieldFormulario" value="Formulário: " />
+	        <p:selectOneMenu id="editFieldFormulario" style="width:300px;" required="true" converter="entityConverter" value="#{backingBean.entity.formulario}">
+	            <f:selectItems value="#{backingBean.formularios}" var="formulario" 
+	            	itemLabel="#{formulario.id} - #{formulario.descricao}" 
+	            	itemValue="#{formulario}"/>
+	        </p:selectOneMenu>
+
+			<p:outputLabel id="labelProfessor" for="editFieldProfessor" value="Professor: " />
+	        <p:selectOneMenu id="editFieldProfessor" style="width:300px;" required="true" converter="entityConverter" value="#{backingBean.entity.professor}">
+	            <f:selectItems value="#{turmaBean.professores}" var="professor" 
+	            	itemLabel="#{professor.id} - #{professor.nome} #{professor.sobrenome}" 
+	            	itemValue="#{professor}"/>
+	        </p:selectOneMenu>		
+		
+			<p:outputLabel id="labelDataInicial" for="editFieldDataInicial" value="Data Inicial:" />
+			<p:calendar id="editFieldDataInicial" required="true" value="#{backingBean.entity.dtInicial}"/>
+			
+			<p:outputLabel id="labelDataFinal" for="editFieldDataFinal" value="Data Final:" />
+			<p:calendar id="editFieldDataFinal" required="true" value="#{backingBean.entity.dtFinal}"/>
+
+			<p:outputLabel id="labelDataInicialAvaliacao" for="editFieldDataInicialAvaliacao" value="Data Inicial Avaliação:" />
+			<p:calendar id="editFieldDataInicialAvaliacao" required="true" value="#{backingBean.entity.dtInicioAvaliacao}" />
+			
+			<p:outputLabel id="labelDataFinalAvaliacao" for="editFieldDataFinalAvaliacao" value="Data Final Avaliação:" />
+			<p:calendar id="editFieldDataFinalAvaliacao" required="true" value="#{backingBean.entity.dtFinalAvaliacao}" />
+			
+			<p:outputLabel id="labelNumero" for="editFieldNumero" value="Número:" />
+			<p:inputText id="editFieldNumero" required="true" value="#{backingBean.entity.numero}" />
+			
+			<p:outputLabel id="labelEmail" for="editFieldEmail" value="Texto E-mail:" />
+			<p:inputTextarea id="editFieldEmail" required="true" value="#{backingBean.entity.textoEmail}" />
+
+			<p:outputLabel id="labelAlunos" for="editFieldAlunos" value="Alunos:" />
+			<p:pickList id="editFieldAlunos" value="#{backingBean.alunos}" var="aluno" effect="bounce"
+                itemValue="#{aluno}" itemLabel="#{aluno.nome} #{aluno.sobrenome}" responsive="true"
+                converter="pickListConverter" />
+
+		</h:panelGrid>
+		</p:scrollPanel>
+	</ui:define>
+	
+</ui:composition>
+</html>
+
+
+
+

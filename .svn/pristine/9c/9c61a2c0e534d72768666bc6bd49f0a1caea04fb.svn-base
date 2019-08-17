@@ -1,0 +1,98 @@
+package br.com.decision.dao;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import br.com.decision.entity.IBaseEntity;
+import br.com.decision.utils.ReflectionUtils;
+
+/**
+ * Classe DAO Genérica para manipulação das entidades
+ * @param <E> Entidade
+ * @author André Schmitt
+ */
+public abstract class BaseDAO<E extends IBaseEntity> implements Serializable, IBaseDAO<E> {
+
+	private static final long serialVersionUID = 2938179803202022149L;
+	private static final Logger LOGGER = Logger.getLogger(BaseDAO.class.toString());
+
+
+	@PersistenceContext(unitName="InfnetAvaliacao")
+	public EntityManager entityManager;
+
+    private final Class<E> entityClass;
+
+	@SuppressWarnings("unchecked")
+	public BaseDAO() {
+		super();
+		this.entityClass = (Class<E>) ReflectionUtils.getGenericClassFromClass(this.getClass(), 0);
+	}
+
+	protected EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	@Override
+	public E persist(final E entity) {
+		if (entity.getId() == null) {
+			entityManager.persist(entity);
+			return entity;
+		}
+		return entityManager.merge(entity);
+	}
+
+	@Override
+	public void delete(final E entity) {
+		entityManager.remove(findById(entity.getId()));
+	}
+
+	@Override
+	public E findById(final Serializable id) {
+		return entityManager.find(this.entityClass, id);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<E> findAll() {
+		return entityManager.createQuery("SELECT entity FROM " + entityClass.getSimpleName() + " entity ").getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public E findFirst() {
+		try {
+			final Query query = entityManager.createQuery("SELECT entity FROM " + entityClass.getSimpleName() + " entity ");
+			query.setMaxResults(1);
+			return (E) query.getSingleResult();
+		} catch (final Exception e) {
+			LOGGER.log(Level.SEVERE, "Falha ao realizar consulta", e);
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public E findFirstFullJoin() {
+		try {
+			final Query query = entityManager.createQuery(getSqlFullJoin());
+			query.setMaxResults(1);
+			return (E) query.getSingleResult();
+		} catch (final Exception e) {
+			LOGGER.log(Level.SEVERE, "Falha realizar consulta", e);
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<E> findFullJoin() {
+		return entityManager.createQuery(getSqlFullJoin()).getResultList();
+	}
+
+}

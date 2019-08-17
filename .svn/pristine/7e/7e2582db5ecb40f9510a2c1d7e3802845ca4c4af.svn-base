@@ -1,0 +1,57 @@
+package br.com.decision.view;
+
+import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Produces;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import br.com.decision.entity.AlunoAvaliacaoTurma;
+import br.com.decision.service.AlunoAvaliacaoTurmaService;
+import br.com.decision.utils.AvaliacaoHashUtils;
+import br.com.decision.xml.AvaliacaoHash;
+
+@Named
+@SessionScoped
+public class RespostaAvaliacaoBean extends CrudBaseBean<AlunoAvaliacaoTurma, AlunoAvaliacaoTurmaService> {
+
+	private static final long serialVersionUID = 5660252985908274741L;
+
+	@Inject
+	private AlunoAvaliacaoTurmaService alunoAvaliacaoTurmaService;
+
+	@Produces
+	public AlunoAvaliacaoTurma getAvaliacao() {
+		return searchAlunoAvaliacaoTurma();
+	}
+
+	private AlunoAvaliacaoTurma searchAlunoAvaliacaoTurma() {
+		try {
+			final AvaliacaoHash avaliacaoHash = AvaliacaoHashUtils.buildAvaliacaoHashFromURLParameter(getHash());
+			return getService().searchAlunoAvaliacaoTurma(avaliacaoHash.getAlunoId(), avaliacaoHash.getTurmaId());
+		} catch(final Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private String getHash() {
+		return FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("value");
+	}
+
+	@Override
+	public AlunoAvaliacaoTurmaService getService() {
+		return alunoAvaliacaoTurmaService;
+	}
+
+	@Override
+	public String getModalTittle() {
+		return null;
+	}
+
+	@Override
+	public AlunoAvaliacaoTurma buildNewInstance() {
+		return null;
+	}
+
+}

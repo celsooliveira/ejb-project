@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+</h:head>
+<h:body>
+	<p:growl id="growl" autoUpdate="true" />
+
+	<ui:param name="backingBean" value="#{respostaAvaliacaoBean}" />
+	<ui:param name="likerts" value="#{respostaAvaliacaoBean.likert}" />
+	<ui:param name="avaliacao" value="#{backingBean.avaliacao}" />
+	<ui:param name="mapAvaliacao" value="#{backingBean.mapAvaliacoes}" />
+	<ui:param name="topicos" value="#{mapAvaliacao.keySet()}" />
+	
+	
+	<h:form id="formAvaliacao">
+		<p:fieldset legend="Avaliação">
+			<p:menubar id="avaliacaoMenuBar">
+				<p:menuitem id="menuItemAdicionar" value="Salvar" process="formAvaliacao" actionListener="#{backingBean.save()}"
+					update="formAvaliacao" />
+			</p:menubar>
+		
+			<p:fieldset>
+				<h:panelGrid columns="1">
+					<p:outputLabel id="labelAluno" for="textFieldAluno" value="Aluno:" />
+					<h:outputText id="textFieldAluno" value="#{avaliacao.aluno.nome} #{avaliacao.aluno.sobrenome}" />
+			
+					<p:outputLabel id="labelTurma" for="textFieldTurma" value="Turma:" />
+					<h:outputText id="textFieldTurma" value="#{avaliacao.turma.numero}" />
+				</h:panelGrid>
+			</p:fieldset>
+			
+			<p:fieldset>
+				<h:panelGrid columns="1" width="100%">
+					<p:dataGrid var="topico" value="#{topicos}" columns="1">
+						<p:panel header="#{topico.descricao}">
+							<p:dataGrid style="float:right;width:50%;border:none;" var="likert" value="#{likerts}" columns="6" >
+								<div style="width:68px; text-align:center;">
+									<p:outputLabel value="#{likert.descricao}" style="font-size:12px; font-weight:bold;"/>
+								</div>
+							</p:dataGrid>
+						
+							<p:dataGrid var="avaliacaoResposta" value="#{mapAvaliacao.get(topico)}" columns="1">
+								<div style="float:left;width:50%">
+									<h:panelGrid columns="1">
+										<p:outputLabel value="#{avaliacaoResposta.pergunta.dsPergunta}" />
+						 			</h:panelGrid>
+								</div>
+	
+				 				<div style="float:right;width:50%">
+									<p:selectOneRadio style="width:100%; float:right; text-align:center" rendered="#{avaliacaoResposta.resposta.pergunta.objetiva}" 
+										disabled="#{avaliacaoResposta.resposta.dtAlteracao != null}"
+										value="#{avaliacaoResposta.resposta.resposta}" layout="grid" columns="6" >
+									    <f:selectItems value="#{likerts}" var="likert" itemLabel="" itemValue="#{likert.cod}" />
+									</p:selectOneRadio>
+									
+									<p:inputTextarea rendered="#{avaliacaoResposta.resposta.pergunta.justificativa}" 
+										disabled="#{avaliacaoResposta.resposta.dtAlteracao != null}" 
+										value="#{avaliacaoResposta.resposta.texto}" style="width:100%" rows="5" cols="30" maxlength="1000" autoResize="true" />
+									
+								</div>
+							</p:dataGrid>
+						</p:panel>
+					</p:dataGrid>			
+				</h:panelGrid>
+			</p:fieldset>
+		</p:fieldset>
+	</h:form>
+</h:body>
+</html>

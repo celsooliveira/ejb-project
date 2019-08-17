@@ -1,0 +1,129 @@
+package br.com.decision.entity;
+
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
+
+/**
+ * Entidade base
+ */
+@MappedSuperclass
+public abstract class BaseAuditableEntity extends BaseEntity implements IBaseAuditableEntity {
+
+	private static final long serialVersionUID = 3157831446523161209L;
+	private Date dtInclusao;
+	private Date dtAlteracao;
+	private Integer usuarioInc;
+	private Integer usuarioAlt;
+	private Integer nrVersao;
+
+	@Override
+	@Column(name = "usuario_inc")
+	public Integer getUsuarioInc() {
+		return usuarioInc;
+	}
+
+	@Override
+	public void setUsuarioInc(final Integer usuarioInc) {
+		this.usuarioInc = usuarioInc;
+	}
+
+	@Override
+	@Column(name = "usuario_alt")
+	public Integer getUsuarioAlt() {
+		return usuarioAlt;
+	}
+
+	@Override
+	public void setUsuarioAlt(final Integer usuarioAlt) {
+		this.usuarioAlt = usuarioAlt;
+	}
+
+	@Override
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "dt_inclusao")
+	public Date getDtInclusao() {
+		return dtInclusao;
+	}
+
+	@Override
+	public void setDtInclusao(final Date dtInclusao) {
+		this.dtInclusao = dtInclusao;
+	}
+
+	@Override
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "dt_alteracao")
+	public Date getDtAlteracao() {
+		return dtAlteracao;
+	}
+
+	@Override
+	public void setDtAlteracao(final Date dtAlteracao) {
+		this.dtAlteracao = dtAlteracao;
+	}
+
+	@Override
+	@Version
+	@Column(name = "nr_versao")
+	public Integer getNrVersao() {
+		return nrVersao;
+	}
+
+	@Override
+	public void setNrVersao(final Integer nrVersao) {
+		this.nrVersao = nrVersao;
+	}
+
+	@PrePersist
+	public void beforeSave() {
+		setDtInclusao(Calendar.getInstance().getTime());
+		setUsuarioInc(1);
+	}
+
+	@PreUpdate
+	public void beforeUpdate() {
+		setDtAlteracao(Calendar.getInstance().getTime());
+		setUsuarioAlt(1);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ (getId() == null ? 0 : getId().hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+
+		if (obj instanceof BaseAuditableEntity) {
+			final BaseAuditableEntity other = (BaseAuditableEntity) obj;
+			if (getId() == null) {
+				if (other.getId() != null) {
+					return false;
+				}
+			} else if (getId().equals(other.getId())) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+}

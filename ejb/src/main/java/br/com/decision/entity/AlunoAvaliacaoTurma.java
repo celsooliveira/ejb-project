@@ -1,0 +1,140 @@
+package br.com.decision.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import br.com.decision.utils.AvaliacaoHashUtils;
+
+/**
+ * Classe para mapeamento da tabela "aluno_avaliacao_turma"
+ */
+@Entity
+@Table(name = "aluno_avaliacao_turma")
+public class AlunoAvaliacaoTurma extends BaseAuditableEntity implements Serializable {
+
+	private static final long serialVersionUID = 2839241601847166066L;
+
+	private Integer id;
+	private Boolean concluida;
+	private Date dtAvaliacao;
+	private Boolean transmitida;
+	private Turma turma;
+	private Usuario aluno;
+	private String hashAvaliacao;
+	private List<AvaliacaoResposta> avaliacaoRespostas;
+
+	public AlunoAvaliacaoTurma() {
+		super();
+	}
+
+	@Override
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_aluno_avalia_turma", unique = true)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(final Integer id) {
+		this.id = id;
+	}
+
+	@Column(name = "concluida")
+	public Boolean getConcluida() {
+		return this.concluida;
+	}
+
+	public void setConcluida(final Boolean concluida) {
+		this.concluida = concluida;
+	}
+
+	@Temporal(TemporalType.DATE)
+	@Column(name = "dt_avaliacao")
+	public Date getDtAvaliacao() {
+		return this.dtAvaliacao;
+	}
+
+	public void setDtAvaliacao(final Date dtAvaliacao) {
+		this.dtAvaliacao = dtAvaliacao;
+	}
+
+	@Column(name = "transmitida")
+	public Boolean getTransmitida() {
+		return this.transmitida;
+	}
+
+	public void setTransmitida(final Boolean transmitida) {
+		this.transmitida = transmitida;
+	}
+
+	@ManyToOne
+	@JoinColumn(name = "id_aluno")
+	public Usuario getAluno() {
+		return aluno;
+	}
+
+	public void setAluno(final Usuario aluno) {
+		this.aluno = aluno;
+	}
+
+	@ManyToOne
+	@JoinColumn(name = "id_turma")
+	public Turma getTurma() {
+		return turma;
+	}
+
+	public void setTurma(final Turma turma) {
+		this.turma = turma;
+	}
+
+	@OneToMany(mappedBy = "alunoAvaliacaoTurma", cascade = CascadeType.ALL)
+	public List<AvaliacaoResposta> getAvaliacaoRespostas() {
+		return this.avaliacaoRespostas;
+	}
+
+	public void setAvaliacaoRespostas(final List<AvaliacaoResposta> avaliacaoRespostas) {
+		this.avaliacaoRespostas = avaliacaoRespostas;
+	}
+
+	@Column(name = "hash_avaliacao")
+	public String getHashAvaliacao() {
+		return hashAvaliacao;
+	}
+
+	public void setHashAvaliacao(final String hashAvaliacao) {
+		this.hashAvaliacao = hashAvaliacao;
+	}
+
+	@PrePersist
+	public void buildHash() {
+		if (this.hashAvaliacao == null) {
+			this.hashAvaliacao = AvaliacaoHashUtils.buildHashFromAvaliacao(aluno.getId(), turma.getId());
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "AlunoAvaliacaoTurma ["
+				+ "id=" + id
+				+ ", concluida=" + concluida
+				+ ", dtAvaliacao=" + dtAvaliacao
+				+ ", transmitida=" + transmitida
+				+ "]";
+	}
+
+}

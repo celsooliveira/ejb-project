@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/pages/template/crud-template.xhtml">
+
+	<ui:param name="backingBean" value="#{topicoBean}" />
+
+	<ui:define name="content">
+		<p:panel id="topicoPanel" header="Gerenciamento de Tópicos"
+			menuTitle="Gerenciamento de Tópicos">
+			<p:dataTable id="topicoTable" var="topico" value="#{backingBean.topicos}" selectionMode="single"
+				emptyMessage="Sem registros"  
+				selection="#{backingBean.entity}" rowKey="#{topico.id}">
+				<f:facet name="header">Lista de Tópicos</f:facet>
+				
+				<p:ajax event="rowSelect" listener="#{topicoBean.onRowSelect}" update=":baseForm:baseMenuBar" />
+				
+				<p:column id="topicoId" headerText="Id" width="5%" style="text-align:center;" >
+					<h:outputText value="#{topico.id}" />
+				</p:column>
+				<p:column id="descricaoTopico" headerText="Descrição">
+					<h:outputText value="#{topico.descricao}" />
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+	</ui:define>
+	
+	<ui:define name="modalContent">
+		<h:panelGrid columns="1">
+			<p:outputLabel id="labelTopico" for="editFieldTopico" value="Topico:" />
+			<h:inputText id="editFieldTopico" required="true" value="#{backingBean.entity.descricao}"/>
+		</h:panelGrid>
+	</ui:define>
+	
+</ui:composition>
+</html>
+
+
